@@ -20,9 +20,6 @@ altnames <- matrix(c("Ceylon", "Chinese Taipei", "Unified Team",
 # initialize data frame for all data
 alldata <- data.frame("Nation" = c(""))
 
-# count how many times need to pull second table
-tablecount <- 0
-
 for (i in years) {
     # build url using wikipedia template and inserting year
     url <- paste("http://en.wikipedia.org/wiki/", i, "_Summer_Olympics_medal_table", sep = "")
@@ -45,7 +42,6 @@ for (i in years) {
             html_nodes(xpath='//*[@id="mw-content-text"]/table[2]') %>%
             html_table(fill = TRUE)
         dat <- dat[[1]]
-        tablecount <- tablecount + 1
     }
     
     temp <- dat
@@ -72,7 +68,6 @@ for (i in years) {
         temp$Nation <- gsub(j, "", temp$Nation)
     }
     
-
     # Remove parenthetical abbreviations following country names
     temp$Nation <- stri_sub(temp$Nation, 1, -5)
     
@@ -100,6 +95,12 @@ alldata[is.na(alldata)] <- 0
 
 # convert numbers saved as characters to all numerics
 alldata[, 2:ncol(alldata)] <- sapply(alldata[, 2:ncol(alldata)], as.numeric)
+
+# set sequences to subset medals by color
+goldseq <- seq(from = 2, to = 4 * length(years) + 1, by = 4)
+silvseq <- seq(from = 3, to = 4 * length(years) + 2, by = 4)
+bronseq <- seq(from = 4, to = 4 * length(years) + 3, by = 4)
+totseq <- seq(from = 5, to = 4 * length(years) + 4, by = 4)
 
 # Tack on columns with total won medals of each type
 alldata$TotalBronze <- apply(alldata[ , bronseq], 1, sum)
